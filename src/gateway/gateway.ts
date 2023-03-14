@@ -19,6 +19,7 @@ import {
   AddGroupUserResponse,
   CreateGroupMessageResponse,
   CreateMessageResponse,
+  RemoveGroupUserResponse,
 } from '../utils/types';
 import { IGatewaySessionManager } from './gateway.session';
 
@@ -45,14 +46,11 @@ export class MessagingGateway
 
   handleConnection(socket: AuthenticatedSocket, ...args: any[]) {
     console.log('Incoming Connection');
-    console.log(socket.user);
     this.sessions.setUserSocket(socket.user.id, socket);
     socket.emit('connected', {});
   }
 
   handleDisconnect(socket: AuthenticatedSocket) {
-    console.log('handleDisconnect');
-    console.log(`${socket.user.email} disconnected.`);
     this.sessions.removeUserSocket(socket.user.id);
   }
 
@@ -236,6 +234,29 @@ export class MessagingGateway
   @OnEvent('group.user.add')
   handleGroupUserAdd(payload: AddGroupUserResponse) {
     const recipientSocket = this.sessions.getUserSocket(payload.user.id);
+    console.log('inside group.user.add');
+    console.log(`group-${payload.group.id}`);
+    this.server
+      .to(`group-${payload.group.id}`)
+      .emit('onGroupReceivedNewUser', payload);
     recipientSocket && recipientSocket.emit('onGroupUserAdd', payload);
+  }
+  @OnEvent('group.user.remove')
+  handleGroupUserRemove(payload: RemoveGroupUserResponse) {
+    const { group, user } = payload;
+    const ROOM_NAME = `group-${payload.group.id}`;
+    const removedUserSocket = this.sessions.getUserSocket(payload.user.id);
+    console.log(payload);
+    console.log('Inside group.user.remove');
+    if (removedUserSocket) {
+      console.log('Emitting onGroupRemoved');
+      removedUserSocket.emit('onGroupRemoved', payload);
+      removedUserSocket.leave(ROOM_NAME);
+    }
+    this.server.to(ROOM_NAME).emit('onGroupRecipientRemoved', payload);
+    const onlineUsers = group.users
+      .map((user) => this.sessions.getUserSocket(user.id) && user)
+      .filter((user) => user);
+    // this.server.to(ROOM_NAME).emit('onlineGroupUsersReceived', { onlineUsers });
   }
 }

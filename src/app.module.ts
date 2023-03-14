@@ -30,6 +30,7 @@ import { MessagesModule } from './messages/messages.module';
       database: process.env.MYSQL_DB_NAME,
       synchronize: true,
       entities,
+      logging: false,
     }),
     ConversationsModule,
   ],
