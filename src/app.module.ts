@@ -1,3 +1,4 @@
+import { FriendsModule } from './friends/friends.module';
 import { GroupModule } from './groups/group.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -13,6 +14,7 @@ import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
+    FriendsModule,
     MessagesModule,
     AuthModule,
     UsersModule,

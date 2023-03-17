@@ -49,4 +49,23 @@ export class GroupRecipientsController {
     this.eventEmitter.emit('group.user.remove', response);
     return response.group;
   }
+
+  /**
+   * Leaves a Group
+   * @param user the authenticated User
+   * @param groupId the id of the group
+   * @returns the updated Group that the user had left
+   */
+  @Delete('leave')
+  async leaveGroup(
+    @AuthUser() user: User,
+    @Param('id', ParseIntPipe) groupId: number,
+  ) {
+    const group = await this.groupRecipientService.leaveGroup({
+      id: groupId,
+      userId: user.id,
+    });
+    this.eventEmitter.emit('group.user.leave', { group, userId: user.id });
+    return group;
+  }
 }
