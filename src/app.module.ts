@@ -1,3 +1,4 @@
+import { FriendRequestsModule } from './friend-request/friend-requests.module';
 import { FriendsModule } from './friends/friends.module';
 import { GroupModule } from './groups/group.module';
 import { Module } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
+    FriendRequestsModule,
     FriendsModule,
     MessagesModule,
     AuthModule,
@@ -22,6 +24,7 @@ import { MessagesModule } from './messages/messages.module';
     PassportModule.register({ session: true }),
     GatewayModule,
     GroupModule,
+    FriendRequestsModule,
     EventEmitterModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
