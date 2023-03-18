@@ -1,4 +1,12 @@
-import { Conversation, Group, GroupMessage, Message, User } from './typeorm';
+import {
+  Conversation,
+  Friend,
+  FriendRequest,
+  Group,
+  GroupMessage,
+  Message,
+  User,
+} from './typeorm';
 import { Request } from 'express';
 export type CreateUserDetails = {
   email: string;
@@ -146,9 +154,24 @@ export type CreateFriendParams = {
   email: string;
 };
 
-export type FriendRequestStatus = 'accepted' | 'pending';
+export type FriendRequestStatus = 'accepted' | 'pending' | 'rejected';
 
 export type FriendRequestParams = {
   id: number;
   userId: number;
+};
+
+export type CancelFriendRequestParams = {
+  id: number;
+  userId: number;
+};
+
+export type DeleteFriendRequestParams = {
+  id: number;
+  userId: number;
+};
+
+export type AcceptFriendRequestResponse = {
+  friend: Friend;
+  friendRequest: FriendRequest;
 };

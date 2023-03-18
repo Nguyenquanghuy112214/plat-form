@@ -34,7 +34,7 @@ export class MessagingGateway
 {
   constructor(
     @Inject(Services.GATEWAY_SESSION_MANAGER)
-    private readonly sessions: IGatewaySessionManager,
+    readonly sessions: IGatewaySessionManager,
     @Inject(Services.CONVERSATIONS)
     private readonly conversationService: IConversationsService,
     @Inject(Services.GROUPS)
@@ -165,15 +165,13 @@ export class MessagingGateway
         : this.sessions.getUserSocket(creator.id);
 
     if (authorSocket) authorSocket.emit('onMessage', payload);
-    // console.log(authorSocket);
-    // console.log(recipientSocket);
+
     if (recipientSocket) recipientSocket.emit('onMessage', payload);
   }
 
   @OnEvent('conversation.create')
   handleConversationCreateEvent(payload: Conversation) {
     console.log('Inside conversation.create');
-    console.log(payload.recipient);
     const recipientSocket = this.sessions.getUserSocket(payload.recipient.id);
     if (recipientSocket) recipientSocket.emit('onConversation', payload);
   }
@@ -181,7 +179,6 @@ export class MessagingGateway
   @OnEvent('message.delete')
   async handleMessageDelete(payload) {
     console.log('Inside message.delete');
-    console.log(payload);
     const conversation = await this.conversationService.findConversationById(
       payload.conversationId,
     );

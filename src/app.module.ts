@@ -12,6 +12,9 @@ import { GatewayModule } from './gateway/gateway.module';
 import entities from './utils/typeorm';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MessagesModule } from './messages/messages.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerBehindProxyGuard } from './utils/throttler';
 
 @Module({
   imports: [
@@ -25,6 +28,10 @@ import { MessagesModule } from './messages/messages.module';
     GatewayModule,
     GroupModule,
     FriendRequestsModule,
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     EventEmitterModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -40,6 +47,11 @@ import { MessagesModule } from './messages/messages.module';
     ConversationsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -6,7 +6,11 @@ import { IUserService } from '../users/user';
 import { Services } from '../utils/constants';
 import { FriendRequest } from '../utils/typeorm';
 import { Friend } from '../utils/typeorm/entities/Friend';
-import { CreateFriendParams, FriendRequestParams } from '../utils/types';
+import {
+  CancelFriendRequestParams,
+  CreateFriendParams,
+  FriendRequestParams,
+} from '../utils/types';
 import { FriendRequestException } from './exceptions/FriendRequest';
 import { FriendRequestAcceptedException } from './exceptions/FriendRequestAccepted';
 import { FriendRequestNotFoundException } from './exceptions/FriendRequestNotFound';
@@ -23,6 +27,25 @@ export class FriendRequestService implements IFriendRequestService {
     @Inject(Services.USERS)
     private readonly userService: IUserService,
   ) {}
+
+  getFriendRequests(id: number): Promise<FriendRequest[]> {
+    const status = 'pending';
+    return this.friendRequestRepository.find({
+      where: [
+        { sender: { id }, status },
+        { receiver: { id }, status },
+      ],
+      relations: ['receiver', 'sender'],
+    });
+  }
+
+  async cancel({ id, userId }: CancelFriendRequestParams) {
+    const friendRequest = await this.findById(id);
+    if (!friendRequest) throw new FriendRequestNotFoundException();
+    if (friendRequest.sender.id !== userId) throw new FriendRequestException();
+    await this.friendRequestRepository.delete(id);
+    return friendRequest;
+  }
 
   async create({ user: sender, email }: CreateFriendParams) {
     const receiver = await this.userService.findUser({ email });
@@ -45,12 +68,26 @@ export class FriendRequestService implements IFriendRequestService {
     if (friendRequest.receiver.id !== userId)
       throw new FriendRequestException();
     friendRequest.status = 'accepted';
-    await this.friendRequestRepository.save(friendRequest);
+    const updatedFriendRequest = await this.friendRequestRepository.save(
+      friendRequest,
+    );
     const newFriend = this.friendRepository.create({
       sender: friendRequest.sender,
       receiver: friendRequest.receiver,
     });
-    return this.friendRepository.save(newFriend);
+    const friend = await this.friendRepository.save(newFriend);
+    return { friend, friendRequest: updatedFriendRequest };
+  }
+
+  async reject({ id, userId }: CancelFriendRequestParams) {
+    const friendRequest = await this.findById(id);
+    if (!friendRequest) throw new FriendRequestNotFoundException();
+    if (friendRequest.status === 'accepted')
+      throw new FriendRequestAcceptedException();
+    if (friendRequest.receiver.id !== userId)
+      throw new FriendRequestException();
+    friendRequest.status = 'rejected';
+    return this.friendRequestRepository.save(friendRequest);
   }
 
   isPending(userOneId: number, userTwoId: number) {
