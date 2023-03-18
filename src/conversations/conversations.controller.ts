@@ -18,6 +18,7 @@ import { User } from '../utils/typeorm';
 import { IConversationsService } from './conversations';
 import { CreateConversationDto } from './dtos/CreateConversation.dto';
 
+@SkipThrottle()
 @ApiTags(Routes.CONVERSATIONS)
 @Controller(Routes.CONVERSATIONS)
 @UseGuards(AuthenticatedGuard)
@@ -28,6 +29,10 @@ export class ConversationsController {
     private readonly events: EventEmitter2,
   ) {}
 
+  @Get('test/endpoint/check')
+  test() {
+    return;
+  }
   @Post()
   async createConversation(
     @AuthUser() user: User,
@@ -43,7 +48,6 @@ export class ConversationsController {
   }
 
   @Get()
-  @SkipThrottle()
   async getConversations(@AuthUser() { id }: User) {
     console.log('1');
 
@@ -51,7 +55,6 @@ export class ConversationsController {
   }
 
   @Get(':id')
-  @SkipThrottle()
   async getConversationById(@Param('id') id: number) {
     const conversation = await this.conversationsService.findConversationById(
       id,

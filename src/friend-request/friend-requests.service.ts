@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FriendAlreadyExists } from 'src/friends/exceptions/FriendAlreadyExists';
+import { IFriendsService } from 'src/friends/friends';
 import { Repository } from 'typeorm';
 import { UserNotFoundException } from '../users/exceptions/UserNotFound';
 import { IUserService } from '../users/user';
@@ -26,6 +28,8 @@ export class FriendRequestService implements IFriendRequestService {
     private readonly friendRequestRepository: Repository<FriendRequest>,
     @Inject(Services.USERS)
     private readonly userService: IUserService,
+    @Inject(Services.FRIENDS_SERVICE)
+    private readonly friendsService: IFriendsService,
   ) {}
 
   getFriendRequests(id: number): Promise<FriendRequest[]> {
@@ -52,6 +56,13 @@ export class FriendRequestService implements IFriendRequestService {
     if (!receiver) throw new UserNotFoundException();
     const exists = await this.isPending(sender.id, receiver.id);
     if (exists) throw new FriendRequestPending();
+    if (receiver.id === sender.id)
+      throw new FriendRequestException('Không thể thêm chính mình');
+    const isFriends = await this.friendsService.isFriends(
+      sender.id,
+      receiver.id,
+    );
+    if (isFriends) throw new FriendAlreadyExists();
     const friend = this.friendRequestRepository.create({
       sender,
       receiver,

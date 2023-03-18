@@ -11,12 +11,14 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Routes, ServerEvents, Services } from '../utils/constants';
 import { AuthUser } from '../utils/decorators';
 import { User } from '../utils/typeorm';
 import { CreateFriendDto } from './dto/CreateFriend.dto';
 import { IFriendRequestService } from './friend-requests';
 
+@SkipThrottle()
 @ApiTags(Routes.FRIEND_REQUESTS)
 @Controller(Routes.FRIEND_REQUESTS)
 export class FriendRequestController {

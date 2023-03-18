@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Routes, Services } from '../../utils/constants';
 import { AuthUser } from '../../utils/decorators';
 import { User } from '../../utils/typeorm';
@@ -16,6 +17,7 @@ import { CreateGroupDto } from '../dtos/CreateGroup.dto';
 import { TransferOwnerDto } from '../dtos/GroupOwnerTransfer';
 import { IGroupService } from '../interfaces/group';
 
+@SkipThrottle()
 @ApiTags(Routes.GROUPS)
 @Controller(Routes.GROUPS)
 export class GroupController {

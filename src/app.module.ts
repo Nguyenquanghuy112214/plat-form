@@ -15,12 +15,14 @@ import { MessagesModule } from './messages/messages.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerBehindProxyGuard } from './utils/throttler';
+import { ExistsModule } from './exists/exists.module';
 
 @Module({
   imports: [
     FriendRequestsModule,
     FriendsModule,
     MessagesModule,
+    ExistsModule,
     AuthModule,
     UsersModule,
     ConfigModule.forRoot({ envFilePath: '.env.development' }),
@@ -29,7 +31,7 @@ import { ThrottlerBehindProxyGuard } from './utils/throttler';
     GroupModule,
     FriendRequestsModule,
     ThrottlerModule.forRoot({
-      ttl: 60,
+      ttl: 30,
       limit: 10,
     }),
     EventEmitterModule.forRoot(),
