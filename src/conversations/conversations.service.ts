@@ -47,10 +47,13 @@ export class ConversationsService implements IConversationsService {
     const recipient = await this.userService.findUser({ email });
 
     if (!recipient)
-      throw new HttpException('Recipient not found', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Không tìm thấy người tham gia',
+        HttpStatus.BAD_REQUEST,
+      );
     if (user.id === recipient.id)
       throw new HttpException(
-        'Cannot Create Conversation',
+        'Không thể tạo cuộc trò chuyện',
         HttpStatus.BAD_REQUEST,
       );
 

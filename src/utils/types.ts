@@ -9,7 +9,7 @@ import {
 } from './typeorm';
 import { Request } from 'express';
 export type CreateUserDetails = {
-  email: string;
+  username: string;
   password: string;
   firstName: string;
   lastName: string;
@@ -23,6 +23,7 @@ export type ValidateUserDetails = {
 export type FindUserParams = Partial<{
   id: number;
   email: string;
+  username: string;
 }>;
 
 export type FindUserOptions = Partial<{

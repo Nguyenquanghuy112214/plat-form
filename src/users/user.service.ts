@@ -18,10 +18,10 @@ export class UserService implements IUserService {
 
   async createUser(userDetails: CreateUserDetails) {
     const existingUser = await this.userRepository.findOne({
-      email: userDetails.email,
+      username: userDetails.username,
     });
     if (existingUser)
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      throw new HttpException('Người dùng đã tồn tại', HttpStatus.CONFLICT);
     const password = await hashPassword(userDetails.password);
     const newUser = this.userRepository.create({ ...userDetails, password });
     return this.userRepository.save(newUser);
@@ -31,7 +31,14 @@ export class UserService implements IUserService {
     params: FindUserParams,
     options?: FindUserOptions,
   ): Promise<User> {
-    const selections: (keyof User)[] = ['email', 'firstName', 'lastName', 'id'];
+    const selections: (keyof User)[] = [
+      'email',
+      'username',
+      'firstName',
+      'lastName',
+      'id',
+      'profile',
+    ];
     const selectionsWithPassword: (keyof User)[] = [...selections, 'password'];
     return this.userRepository.findOne(params, {
       select: options?.selectAll ? selectionsWithPassword : selections,
@@ -48,7 +55,13 @@ export class UserService implements IUserService {
       .createQueryBuilder('user')
       .where(statement, { query: `%${query}%` })
       .limit(10)
-      .select(['user.firstName', 'user.lastName', 'user.email', 'user.id'])
+      .select([
+        'user.firstName',
+        'user.lastName',
+        'user.email',
+        'user.id',
+        'user.profile',
+      ])
       .getMany();
   }
 }

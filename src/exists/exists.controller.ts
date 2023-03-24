@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ApiTags } from '@nestjs/swagger';
 import { IConversationsService } from '../conversations/conversations';
 import { ConversationNotFoundException } from '../conversations/exceptions/ConversationNotFound';
 import { IUserService } from '../users/user';
@@ -15,6 +16,7 @@ import { Routes, Services } from '../utils/constants';
 import { AuthUser } from '../utils/decorators';
 import { User } from '../utils/typeorm';
 
+@ApiTags(Routes.EXISTS)
 @Controller(Routes.EXISTS)
 export class ExistsController {
   constructor(
